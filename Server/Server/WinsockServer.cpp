@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <string>
 
 // Need to link with Ws2_32.lib
 #pragma comment (lib, "Ws2_32.lib")
@@ -99,8 +100,19 @@ int __cdecl main(void)
 
 		iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
 		printf("%i\n", sizeof(recvbuf));
-		//memcpy(connectedClientName, recvbuf, sizeof(recvbuf));
-		printf("Connected clients name is: %s", recvbuf);//connectedClientName);
+		//memcpy(connectedClientName, recvbuf, sizeof(14));
+
+		// ADDON
+
+		
+		printf("Connected clients name is: %s\n", recvbuf);
+
+		// ADDON - getting the ip address info
+		struct sockaddr_in name;
+		socklen_t addr_len = sizeof(name);
+		getpeername(ClientSocket, (struct sockaddr *) &name, &addr_len);
+		printf("Client IP Address: %i.%i.%i.%i\n", name.sin_addr.S_un.S_un_b.s_b1, name.sin_addr.S_un.S_un_b.s_b2, name.sin_addr.S_un.S_un_b.s_b3, name.sin_addr.S_un.S_un_b.s_b4);
+
 		if (iResult > 0) {
 			printf("Bytes received: %d\n", iResult);
 

@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <istream>
+#include <string>
 
 
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
@@ -27,15 +28,22 @@ int __cdecl main(int argc, char **argv)
 	struct addrinfo *result = NULL,
 		*ptr = NULL,
 		hints;
-	char *sendbuf = "this is a test";
+	char *sendbuf = "";
 	char recvbuf[DEFAULT_BUFLEN];
 	int iResult;
 	int recvbuflen = DEFAULT_BUFLEN;
+
+	// ADDON
+	std::string tmpGamerTag;
+	printf("Please enter your gamertag: ");
+	std::cin >> tmpGamerTag;
+	const char* gamerTag = tmpGamerTag.c_str();
 
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		printf("WSAStartup failed with error: %d\n", iResult);
+		getchar();
 		return 1;
 	}
 
@@ -48,6 +56,7 @@ int __cdecl main(int argc, char **argv)
 	iResult = getaddrinfo(address, DEFAULT_PORT, &hints, &result);
 	if (iResult != 0) {
 		printf("getaddrinfo failed with error: %d\n", iResult);
+		getchar();
 		WSACleanup();
 		return 1;
 	}
@@ -60,6 +69,7 @@ int __cdecl main(int argc, char **argv)
 			ptr->ai_protocol);
 		if (ConnectSocket == INVALID_SOCKET) {
 			printf("socket failed with error: %ld\n", WSAGetLastError());
+			getchar();
 			WSACleanup();
 			return 1;
 		}
@@ -78,16 +88,18 @@ int __cdecl main(int argc, char **argv)
 
 	if (ConnectSocket == INVALID_SOCKET) {
 		printf("Unable to connect to server!\n");
+		getchar();
 		WSACleanup();
 		return 1;
 	}
 
 	// Send an initial buffer
-	iResult = send(ConnectSocket, sendbuf, (int)strlen(sendbuf), 0);
+	iResult = send(ConnectSocket, gamerTag, (int)strlen(gamerTag), 0); // gamerTag was sendbuf
 	if (iResult == SOCKET_ERROR) {
 		printf("send failed with error: %d\n", WSAGetLastError());
 		closesocket(ConnectSocket);
 		WSACleanup();
+		getchar();
 		return 1;
 	}
 
@@ -99,6 +111,7 @@ int __cdecl main(int argc, char **argv)
 		printf("shutdown failed with error: %d\n", WSAGetLastError());
 		closesocket(ConnectSocket);
 		WSACleanup();
+		getchar();
 		return 1;
 	}
 
@@ -107,16 +120,21 @@ int __cdecl main(int argc, char **argv)
 
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 		if (iResult > 0)
+		{
 			printf("Bytes received: %d\n", iResult);
+			printf("Your GamerTag is : %s\n", recvbuf);
+		}			
 		else if (iResult == 0)
 			printf("Connection closed\n");
 		else
 			printf("recv failed with error: %d\n", WSAGetLastError());
 
+		getchar();
 	} while (iResult > 0);
 
-
+	printf("Press any key to continue");
 	getchar();
+
 	
 	// cleanup
 	closesocket(ConnectSocket);
