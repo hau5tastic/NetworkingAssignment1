@@ -97,9 +97,9 @@ int __cdecl main(int argc, char **argv)
 	iResult = send(ConnectSocket, gamerTag, (int)strlen(gamerTag), 0); // gamerTag was sendbuf
 	if (iResult == SOCKET_ERROR) {
 		printf("send failed with error: %d\n", WSAGetLastError());
+		getchar();
 		closesocket(ConnectSocket);
 		WSACleanup();
-		getchar();
 		return 1;
 	}
 
@@ -109,9 +109,9 @@ int __cdecl main(int argc, char **argv)
 	iResult = shutdown(ConnectSocket, SD_SEND);
 	if (iResult == SOCKET_ERROR) {
 		printf("shutdown failed with error: %d\n", WSAGetLastError());
+		getchar();
 		closesocket(ConnectSocket);
 		WSACleanup();
-		getchar();
 		return 1;
 	}
 
@@ -122,7 +122,7 @@ int __cdecl main(int argc, char **argv)
 		if (iResult > 0)
 		{
 			printf("Bytes received: %d\n", iResult);
-			printf("Your GamerTag is : %s\n", recvbuf);
+			printf("Server Connection for %.*s acknowledged.\n", iResult, recvbuf);
 		}			
 		else if (iResult == 0)
 			printf("Connection closed\n");
